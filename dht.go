@@ -5,6 +5,7 @@ package dht
 import (
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"math"
 	"net"
 	"time"
@@ -198,7 +199,9 @@ func (dht *DHT) init() {
 // join makes current node join the dht network.
 func (dht *DHT) join() {
 	for _, addr := range dht.PrimeNodes {
+		fmt.Printf("addr=%+v\n", addr)
 		raddr, err := net.ResolveUDPAddr(dht.Network, addr)
+		fmt.Printf("raddr=%+v\n", raddr)
 		if err != nil {
 			continue
 		}
