@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/shiyanhui/dht"
+	"github.com/yanggeorge/dht"
 	"net/http"
 	_ "net/http/pprof"
 )
