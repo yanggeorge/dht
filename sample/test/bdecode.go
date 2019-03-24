@@ -1,6 +1,7 @@
 package test
 
 import (
+	"crypto/sha1"
 	"errors"
 	"fmt"
 	"unicode"
@@ -33,15 +34,28 @@ func (b *BDecode) Dic() (map[string]interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error")
 	}
+	var infoStart, infoEnd int
 	for c != 'e' {
 		key, err = b.string()
 		if err != nil {
 			return nil, fmt.Errorf("error")
 		}
+
+		if key == "info" {
+			infoStart = b.i
+		}
+
 		val, err = b.element()
 		if err != nil {
 			return nil, fmt.Errorf("error")
 		}
+
+		if key == "info" {
+			infoEnd = b.i
+			infoHash := encodeToString(sha1.Sum(b.arr[infoStart:infoEnd]))
+			dic["info_hash"] = infoHash
+		}
+
 		dic[key] = val
 		c, err = b.peek(0)
 		if err != nil {
@@ -154,17 +168,17 @@ func (b *BDecode) list() ([]interface{}, error) {
 
 	c, err = b.peek(0)
 	if err != nil {
-		return lis, fmt.Errorf("error")
+		return lis, err
 	}
 	for c != 'e' {
 		ele, err := b.element()
 		if err != nil {
-			return lis, fmt.Errorf("error")
+			return lis, err
 		}
 		lis = append(lis, ele)
 		c, err = b.peek(0)
 		if err != nil {
-			return lis, fmt.Errorf("error")
+			return lis, err
 		}
 	}
 	b.next()

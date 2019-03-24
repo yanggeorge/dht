@@ -45,9 +45,11 @@ func TestParse(t *testing.T) {
 	path := "/Users/ym/tmp/venom.torrent"
 	dat, e := ioutil.ReadFile(path)
 	check(e)
-	fmt.Println(dat)
 	b := NewBDecode(dat)
 	dic, e := b.Parse()
 	check(e)
 	fmt.Println(dic)
+	val := dic["info"]
+	infoDic := val.(map[string]interface{})
+	fmt.Println(infoDic["pieces"])
 }

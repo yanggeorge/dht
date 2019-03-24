@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
@@ -39,10 +40,11 @@ var handshakePrefix = []byte{
 
 // read reads size-length bytes from conn to data.
 func read(conn *net.TCPConn, size int, data *bytes.Buffer) error {
-	conn.SetReadDeadline(time.Now().Add(time.Second * 15))
+	conn.SetReadDeadline(time.Now().Add(time.Second * 50))
 
 	n, err := io.CopyN(data, conn, int64(size))
 	if err != nil || n != int64(size) {
+		fmt.Println(err)
 		return errors.New("read error")
 	}
 	return nil
@@ -51,16 +53,13 @@ func read(conn *net.TCPConn, size int, data *bytes.Buffer) error {
 // readMessage gets a message from the tcp connection.
 func readMessage(conn *net.TCPConn, data *bytes.Buffer) (
 	length int, err error) {
-
 	if err = read(conn, 4, data); err != nil {
 		return
 	}
-
 	length = int(bytes2int(data.Next(4)))
 	if length == 0 {
 		return
 	}
-
 	if err = read(conn, length, data); err != nil {
 		return
 	}
@@ -75,7 +74,12 @@ func sendMessage(conn *net.TCPConn, data []byte) error {
 	binary.Write(buffer, binary.BigEndian, length)
 
 	conn.SetWriteDeadline(time.Now().Add(time.Second * 10))
-	_, err := conn.Write(append(buffer.Bytes(), data...))
+	bytes := append(buffer.Bytes(), data...)
+	for _, d := range bytes {
+		fmt.Printf("%d,", d)
+	}
+	fmt.Printf("\n")
+	_, err := conn.Write(bytes)
 	return err
 }
 
@@ -87,7 +91,12 @@ func sendHandshake(conn *net.TCPConn, infoHash, peerID []byte) error {
 	copy(data[48:], peerID)
 
 	conn.SetWriteDeadline(time.Now().Add(time.Second * 10))
+	for _, d := range data {
+		fmt.Printf("%d,", d)
+	}
+	fmt.Printf("\n")
 	_, err := conn.Write(data)
+	fmt.Println("sendHandShake end.")
 	return err
 }
 
