@@ -75,10 +75,6 @@ func sendMessage(conn *net.TCPConn, data []byte) error {
 
 	conn.SetWriteDeadline(time.Now().Add(time.Second * 10))
 	bytes := append(buffer.Bytes(), data...)
-	for _, d := range bytes {
-		fmt.Printf("%d,", d)
-	}
-	fmt.Printf("\n")
 	_, err := conn.Write(bytes)
 	return err
 }
@@ -91,12 +87,7 @@ func sendHandshake(conn *net.TCPConn, infoHash, peerID []byte) error {
 	copy(data[48:], peerID)
 
 	conn.SetWriteDeadline(time.Now().Add(time.Second * 10))
-	for _, d := range data {
-		fmt.Printf("%d,", d)
-	}
-	fmt.Printf("\n")
 	_, err := conn.Write(data)
-	fmt.Println("sendHandShake end.")
 	return err
 }
 
